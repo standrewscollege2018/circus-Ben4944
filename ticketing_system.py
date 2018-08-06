@@ -21,12 +21,16 @@ class Ticket:
         sales = self._sold * self._cost
         return {'time': self._time, 'capacity': self._capacity, 'sold': self._sold, 'cost': self._cost, 'available': available, 'sales': sales}
 
-tickets = []
-ticket_list = []
-
-Ticket("10AM SHOW", 150, 5)
-Ticket("3PM SHOW", 150, 5)
-Ticket("8PM SHOW", 250, 12)
+# Create tickets
+def init_tickets():
+    global tickets
+    global ticket_list
+    tickets = []
+    ticket_list = []
+    Ticket("10AM SHOW", 150, 5)
+    Ticket("3PM SHOW", 150, 5)
+    Ticket("8PM SHOW", 250, 12)
+init_tickets()
 
 
 
@@ -48,10 +52,26 @@ def display_tickets():
     join_tickets = ""
     for t in tickets:
         t_data = t._values()
-        t_display = "{} | Available: {}, Sold: {}, Sales: ${}\n".format(t_data['time'], t_data['available'], t_data['sold'], t_data['sales'])
+        t_display = "{} | Available: {}, Price: ${}, Sold: {}, Sales: ${}\n".format(t_data['time'], t_data['available'], t_data['cost'], t_data['sold'], t_data['sales'])
         join_tickets += t_display
     var_display_tickets.set(join_tickets)
 display_tickets()
+
+
+# Tickets Summary --------------------
+var_tickets_summary = StringVar()
+lbl_tickets_summary = Label(root, textvariable=var_tickets_summary)
+lbl_tickets_summary.grid(row=3, column=0)
+def display_summary():
+    total_sold = 0
+    total_sales = 0
+    for t in tickets:
+        t_data = t._values()
+        total_sold += t_data['sold']
+        total_sales += t_data['sales']
+    var_tickets_summary.set("SUMMARY\n{} tickets sold today\n${} earned today".format(total_sold, total_sales))
+display_summary()
+    
 
 
 # Sell Tickets --------------------
@@ -65,16 +85,23 @@ ticket_menu.grid(row=0, column=1)
 
 # Sell tickets function
 def sell_tickets():
-    var_display_tickets.set("Failed to sell tickets")
+    var_sell_status.set("Failed to sell tickets")
     if entry_sell.get():
         for t in tickets:
             if t._time == selected_show.get():
-                if (t._capacity - t._sold - int(entry_sell.get())) >= 0:
-                    t._sold += int(entry_sell.get())
-                    var_sell_status.set("{} tickets sold".format(entry_sell.get()))
-                    display_tickets()
-                else:
-                    var_sell_status.set("Not enough capacity")
+                # Check entered value is int
+                try:
+                    if int(entry_sell.get()) <= 0:
+                        var_sell_status.set("Value must be greater than 0")
+                    elif (t._capacity - t._sold - int(entry_sell.get())) >= 0:
+                        t._sold += int(entry_sell.get())
+                        var_sell_status.set("{} tickets sold".format(entry_sell.get()))
+                        display_tickets()
+                        display_summary()
+                    else:
+                        var_sell_status.set("Not enough capacity")
+                except:
+                    var_sell_status.set("Value must be integer")
     else:
         var_sell_status.set("Please enter a quantity")
         
@@ -93,4 +120,14 @@ lbl_sell_status = Label(root, textvariable=var_sell_status)
 lbl_sell_status.grid(row=3, column=1)
 
 
+# Reset ticket sales --------------------
+def reset_sales():
+    init_tickets()
+    display_tickets()
+    display_summary()
+btn_reset = Button(root, text="Reset Sales", command=reset_sales)
+btn_reset.grid(row=4, column=1)
+
+
+# Window Mainloop --------------------
 root.mainloop()
