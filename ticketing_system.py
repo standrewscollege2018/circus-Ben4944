@@ -1,5 +1,5 @@
 # Ticketing System
-# 3/08/2018
+# 7/08/2018
 # Ben Smith
 
 # Import Tkinter
@@ -40,16 +40,12 @@ root.title("Ticketing System")
 root.geometry("500x400")
 
 
-# Title
-lbl_current_showings = Label(root, text="CURRENT SHOWINGS").grid(row=0, column=0)
-
-
 # Display Tickets --------------------
 var_display_tickets = StringVar()
 lbl_display_tickets = Label(root, textvariable=var_display_tickets)
-lbl_display_tickets.grid(row=1, column=0)
+lbl_display_tickets.grid(row=0, column=0)
 def display_tickets():
-    join_tickets = ""
+    join_tickets = "CURRENT SHOWINGS\n"
     for t in tickets:
         t_data = t._values()
         t_display = "{} | Available: {}, Price: ${}, Sold: {}, Sales: ${}\n".format(t_data['time'], t_data['available'], t_data['cost'], t_data['sold'], t_data['sales'])
@@ -61,7 +57,7 @@ display_tickets()
 # Tickets Summary --------------------
 var_tickets_summary = StringVar()
 lbl_tickets_summary = Label(root, textvariable=var_tickets_summary)
-lbl_tickets_summary.grid(row=3, column=0)
+lbl_tickets_summary.grid(row=2, column=0)
 def display_summary():
     total_sold = 0
     total_sales = 0
@@ -85,25 +81,30 @@ ticket_menu.grid(row=0, column=1)
 
 # Sell tickets function
 def sell_tickets():
-    var_sell_status.set("Failed to sell tickets")
+    status_lbl("Failed to sell tickets", "red")
     if entry_sell.get():
         for t in tickets:
             if t._time == selected_show.get():
                 # Check entered value is int
                 try:
+                    # If selling quantity is less than or equal to zero, don't allow sale
                     if int(entry_sell.get()) <= 0:
-                        var_sell_status.set("Value must be greater than 0")
+                        status_lbl("Value must be greater than 0", "red")
+                    # Check there are enough tickets available ((capacity - sold qty - requested qty) >= 0)
                     elif (t._capacity - t._sold - int(entry_sell.get())) >= 0:
                         t._sold += int(entry_sell.get())
-                        var_sell_status.set("{} tickets sold".format(entry_sell.get()))
+                        status_lbl("{} tickets sold".format(entry_sell.get()), "green")
                         display_tickets()
                         display_summary()
+                    # Otherwise there is not enough capacity
                     else:
-                        var_sell_status.set("Not enough capacity")
+                        status_lbl("Not enough capacity", "red")
+                # Except if value is not int - display error
                 except:
-                    var_sell_status.set("Value must be integer")
+                    status_lbl("Value must be int", "red")
+    # No value entered in box - display error
     else:
-        var_sell_status.set("Please enter a quantity")
+        status_lbl("Please enter a quantity", "red")
         
 
 # Sell ticket quantity entry box
@@ -118,6 +119,11 @@ btn_sell.grid(row=2, column=1)
 var_sell_status = StringVar()
 lbl_sell_status = Label(root, textvariable=var_sell_status)
 lbl_sell_status.grid(row=3, column=1)
+
+# Function for changing status label colour
+def status_lbl(message, colour):
+    var_sell_status.set(message)
+    lbl_sell_status.config(fg=colour)
 
 
 # Reset ticket sales --------------------
