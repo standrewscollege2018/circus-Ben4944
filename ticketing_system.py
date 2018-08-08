@@ -112,7 +112,7 @@ entry_sell = Entry(root)
 entry_sell.grid(row=1, column=1)
 
 # Sell tickets button
-btn_sell = Button(root, text="Sell Tickets", command=sell_tickets)
+btn_sell = Button(root, text="Sell Tickets", bg="green yellow", command=sell_tickets)
 btn_sell.grid(row=2, column=1)
 
 # Sell ticket status label
@@ -131,7 +131,7 @@ def reset_sales():
     init_tickets()
     display_tickets()
     display_summary()
-btn_reset = Button(root, text="Reset Sales", command=reset_sales)
+btn_reset = Button(root, text="Reset Sales", bg="tomato", command=reset_sales)
 btn_reset.grid(row=4, column=1)
 
 
